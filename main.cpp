@@ -232,18 +232,24 @@ void print_board( Tile tiles[][8]) {
 	
 	int i = 8;
 	int j = 0;
+	int z = 0;
+	
+	for(int z = 0; z < 8; z++) {
+		printf("|.%d.|", z);
+	}
+	printf("\n");
 	
 	for(i = 7; i >= 0; i-- ) {
 		
 		for(j = 0; j < 8; j++ ) {
 			
 			if(tiles[i][j].used == true) {
-				printf("%c", tiles[i][j].piece.pion_type[0], tiles[i][j].piece.player_one);
+				printf("|.%c.|", tiles[i][j].piece.pion_type[0], tiles[i][j].piece.player_one);
 			} else {
-				printf(".");
+				printf("|...|");
 			}
 		}
-		
+		printf("|.%d.|", i);
 		printf("\n");
 	}
 	
@@ -473,14 +479,16 @@ bool valid_move(const Tile tiles[][8], bool player_one, char start_x, char start
 	// TOWER CHECK
 	if(string_equal(tiles[start_y][start_x].piece.pion_type, "tower")) {
 		
+		if(x == 0)
 			return y > 0 ? check_destination_up(start_y, end_y, start_x, tiles, player_one) : check_destination_down(start_y, end_y, start_x, tiles, player_one);
-			return x > 0 ? check_destination_right(start_x, end_x, start_y, tiles, player_one) : check_destination_left(start_x, end_x, start_y, tiles, player_one);
+		
+		return x > 0 ? check_destination_right(start_x, end_x, start_y, tiles, player_one) : check_destination_left(start_x, end_x, start_y, tiles, player_one);
 	}
 	
 	// PION CHECK
 	if(string_equal(tiles[start_y][start_x].piece.pion_type, "pion")) {
 		
-			return y > 0 ? check_destination_up(start_y, end_y, start_x, tiles, player_one) : check_destination_down(start_y, end_y, start_x, tiles, player_one);
+		return y > 0 ? check_destination_up(start_y, end_y, start_x, tiles, player_one) : check_destination_down(start_y, end_y, start_x, tiles, player_one);
 	}
 	
 	// KING and QUEEN have same direction vectors. Afource, the queen can have larger direction vectors. Lenght vector is already calculated in previous function.
@@ -488,8 +496,26 @@ bool valid_move(const Tile tiles[][8], bool player_one, char start_x, char start
 	if(string_equal(tiles[start_y][start_x].piece.pion_type, "king") || string_equal(tiles[start_y][start_x].piece.pion_type, "queen")) {
 			
 		// want to make straight move
-		return y > 0 && x == 0 ? check_destination_up(start_y, end_y, start_x, tiles, player_one) : check_destination_down(start_y, end_y, start_x, tiles, player_one);
-		return x > 0 && x == 0 ? check_destination_right(start_x, end_x, start_y, tiles, player_one) : check_destination_left(start_x, end_x, start_y, tiles, player_one);
+		
+		// go up
+		if(y > 0 && x == 0) {
+			return check_destination_up(start_y, end_y, start_x, tiles, player_one);
+		}
+		
+		// go down
+		if(y < 0 && x == 0) {
+			return check_destination_down(start_y, end_y, start_x, tiles, player_one);
+		}
+		
+		// go right
+		if(x > 0 && y == 0) {
+			return check_destination_right(start_x, end_x, start_y, tiles, player_one);
+		}
+		
+		// go left
+		if(x < 0 && y == 0) {
+			return check_destination_left(start_x, end_x, start_y, tiles, player_one);
+		}
 		
 		// for checking oblique moves
 		if( x > 0)
@@ -506,7 +532,6 @@ bool valid_move(const Tile tiles[][8], bool player_one, char start_x, char start
 		if( x > 0)
 			return y > 0 ? check_destination_oblique_right_up(start_x, start_y, end_x, end_y, tiles, player_one) : check_destination_oblique_right_down(start_x, start_y, end_x, end_y, tiles, player_one);
 
-			
 		return y > 0 ? check_destination_oblique_left_up(start_x, start_y, end_x, end_y, tiles, player_one) : check_destination_oblique_left_down(start_x, start_y, end_x, end_y, tiles, player_one);
 			
 	}
@@ -582,15 +607,19 @@ int main(int argc, char **argv)
 		int input_x_destination;
 		int input_y_destination;
 		
-		scanf("%d", &input_x);
 		scanf("%d", &input_y);
-		scanf("%d", &input_x_destination);
+		scanf("%d", &input_x);
+
 		scanf("%d", &input_y_destination);
+		scanf("%d", &input_x_destination);
+	
+		bool validation_move = move_piece_validation(player_one,tiles, input_x, input_y, input_x_destination, input_y_destination);
 		
-		bool valid_move = move_piece_validation(player_one,tiles, input_x, input_y, input_x_destination, input_y_destination);
+		printf("vector valid : %d \n",can_piece_make_dir_vector(tiles[input_y][input_x].piece, Vector {input_x_destination - input_x, input_y_destination - input_y}, tiles[input_y_destination][input_x_destination], player_one));
+		printf("valid move : %d \n",valid_move(tiles, player_one, input_x, input_y, input_x_destination, input_y_destination));
 		
 		// can the chess piece make the step in the real chess game?
-		if(valid_move) {
+		if(validation_move) {
 			printf("valid move");
 			
 			// piece is moved true
@@ -606,7 +635,6 @@ int main(int argc, char **argv)
 		
 		print_board(tiles);
 		
-		player_one = false;
 	}
 	
 
