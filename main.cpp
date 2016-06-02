@@ -562,9 +562,8 @@ Tile remove_enemy_from_tile(Tile tiles[][8], char x, char y) {
 	return Tile{false, Chess_piece{0}};
 }
 
-
 // function will validate if the chess move is complete legid.
-bool move_piece_validation(bool player_one, Tile tiles[][8], char start_x, char start_y, char end_x, char end_y) {
+bool move_piece_validation(bool player_one, const Tile tiles[][8], char start_x, char start_y, char end_x, char end_y) {
 
 	// check if the start tile contains a piece of current player AND
 	// check if the end tile contains NOT a piece of the current player
@@ -587,6 +586,271 @@ bool move_piece_validation(bool player_one, Tile tiles[][8], char start_x, char 
 	
 	return false;
 }
+
+
+// check if the king can be hit from the oblique left up line
+bool king_check_oblique_left_up(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x -1) < 0 && (current_y + 1) > 7) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y + 1][current_x - 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y + 1][current_x - 1])) {
+			return false;
+		}
+		
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y + 1][current_x - 1].piece, Vector{original_x - (current_x - 1), original_y - (current_y + 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+			
+	}
+	
+	return king_check_oblique_left_up(tiles, current_x - 1, current_y + 1, king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from the oblique left up line
+bool king_check_oblique_left_down(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x -1) < 0 && (current_y -1) > 0) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y - 1][current_x - 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y - 1][current_x - 1])) {
+			return false;
+		}
+		
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y - 1][current_x - 1].piece, Vector{original_x - (current_x - 1), original_y -(current_y - 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+		
+	}
+	
+	return king_check_oblique_left_down(tiles, current_x - 1, current_y + 1, king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from the oblique left up line
+bool king_check_oblique_right_up(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x + 1)> 7 && (current_y +1) > 7) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y + 1][current_x + 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y + 1][current_x + 1])) {
+			return false;
+		}
+			
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y + 1][current_x + 1].piece, Vector{  original_x - (current_x + 1) , original_y - (current_y + 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+			
+	}
+	
+	return king_check_oblique_left_down(tiles, current_x - 1, current_y + 1, king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from the oblique left up line
+bool king_check_oblique_right_down(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x  + 1) > 7 && (current_y - 1) < 0 ) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y - 1][current_x + 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y - 1][current_x + 1])) {
+			return false;
+		}
+		
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y - 1][current_x + 1].piece, Vector{  original_x - (current_x + 1) , original_y - (current_y - 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+		
+	}
+	
+	return king_check_oblique_left_down(tiles, current_x - 1, current_y - 1, king_player_one, original_x, original_y);
+
+}
+
+
+// check if the king can be hit from left
+bool king_check_left(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x  - 1) < 0 ) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y][current_x - 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y][current_x - 1])) {
+			return false;
+		}
+		
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y][current_x - 1].piece, Vector{  original_x - (current_x - 1) , original_y - current_y}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+		
+	}
+	
+	return king_check_left(tiles, current_x - 1, current_y , king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from right
+bool king_check_right(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_x  + 1) > 7 ) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y][current_x + 1])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y][current_x + 1])) {
+			return false;
+		}
+
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y][current_x + 1].piece, Vector{  original_x - (current_x + 1) , original_y - current_y}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+			
+	}
+	
+	return king_check_right(tiles, current_x + 1, current_y , king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from up
+bool king_check_up(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_y  + 1) > 7 ) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y + 1][current_x])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y + 1][current_x])) {
+			return false;
+		}
+		
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y + 1][current_x].piece, Vector{  original_x  - current_x, original_y - (current_y + 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+		
+	}
+	
+	return king_check_up(tiles, current_x, current_y + 1 , king_player_one, original_x, original_y);
+
+}
+
+// check if the king can be hit from down
+bool king_check_down(const Tile tiles[][8], char current_x, char current_y, bool king_player_one, char original_x, char original_y) {
+	
+	// king is in no danger from this line
+	if((current_y  - 1) < 0 ) {
+		return false;
+	}
+
+	// when chess piece is spotted
+	if(chess_piece_on_tile(tiles[current_y - 1][current_x])) {
+		
+		// if it is chess piece from the king, no danger
+		if(my_piece_on_tile(king_player_one, tiles[current_y - 1][current_x])) {
+			return false;
+		}
+			
+		// check if the enemy can make dir vector till king reach
+		if(can_piece_make_dir_vector(tiles[current_y - 1][current_x].piece, Vector{  original_x  - current_x, original_y - (current_y - 1)}, tiles[original_y][original_x], king_player_one)) {
+			return true;
+		}
+
+	}
+	
+	return king_check_down(tiles, current_x, current_y - 1 , king_player_one, original_x, original_y);
+
+}
+
+
+// check if any king is check
+char king_check(const Tile tiles[][8]) {
+	
+	// find the first king location
+	int y = 0;
+	int x = 0;
+	
+	for(y = 0; y < 8; y++) {
+		
+		for(x = 0; x < 8; x++) {
+			
+			// if any king is found
+			if(tiles[y][x].used == true && string_equal(tiles[y][x].piece.pion_type, "king") ) {
+				
+				bool king_player_one = tiles[y][x].piece.player_one;
+				
+				
+				// check if any horse can beat him down
+				
+				// check if other pieces on oblique lines can beat him down
+				if(king_check_oblique_left_down(tiles, x, y, king_player_one, x, y) || king_check_oblique_left_up(tiles, x, y, king_player_one, x, y) ||
+				king_check_oblique_right_up(tiles, x, y, king_player_one, x, y) || king_check_oblique_right_down(tiles, x, y, king_player_one, x, y) ||
+				king_check_left(tiles, x, y, king_player_one, x, y) || king_check_right(tiles, x, y, king_player_one, x, y) || 
+				king_check_down(tiles, x, y, king_player_one, x, y) || king_check_up(tiles, x, y, king_player_one, x, y)) {
+					
+					// who is it ?
+					 // 1. player one
+					 // 2. player two
+					return king_player_one? 1 : 2;
+
+				}
+				
+			}
+		}
+	}
+	
+	// nobody is checked
+	return 0;
+}
+
+// check if the king is checkmate
+bool king_checkmate() {
+	
+}
+
 
 int main(int argc, char **argv)
 {
@@ -615,9 +879,6 @@ int main(int argc, char **argv)
 	
 		bool validation_move = move_piece_validation(player_one,tiles, input_x, input_y, input_x_destination, input_y_destination);
 		
-		printf("vector valid : %d \n",can_piece_make_dir_vector(tiles[input_y][input_x].piece, Vector {input_x_destination - input_x, input_y_destination - input_y}, tiles[input_y_destination][input_x_destination], player_one));
-		printf("valid move : %d \n",valid_move(tiles, player_one, input_x, input_y, input_x_destination, input_y_destination));
-		
 		// can the chess piece make the step in the real chess game?
 		if(validation_move) {
 			printf("valid move");
@@ -631,6 +892,16 @@ int main(int argc, char **argv)
 			
 			// clean the start position
 			tiles[input_y][input_x] = Tile{ false, {0}};
+			
+			// check if any king is check
+			if(king_check(tiles) == 1) {
+				printf("player 1 is check!");
+			}
+			
+			// check if any king is check
+			if(king_check(tiles) == 2) {
+				printf("player 2 is check!");
+			}
 		}
 		
 		print_board(tiles);
